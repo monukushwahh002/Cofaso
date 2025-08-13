@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lead Generation System</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f8f9fd;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 30px;
+    }
+    .badge {
+        background: #fff;
+        border: 1px solid #ddd;
+        padding: 6px 15px;
+        border-radius: 20px;
+        box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+        color: #6c63ff;
+        font-size: 12px;
+        margin-bottom: 20px;
+        min-width: 220px;
+        text-align: center;
+    }
+
+    /* status styles (applied dynamically) */
+    .badge.success {
+      background: #e6ffef;
+      color: #047857;
+      border-color: #bbf7d0;
+    }
+    .badge.error {
+      background: #fff0f0;
+      color: #b91c1c;
+      border-color: #fecaca;
+    }
+
+    .form-container {
+        background: #fff;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0px 8px 20px rgba(0,0,0,0.08);
+        max-width: 420px;
+        width: 100%;
+    }
+    .form-container h2 {
+        text-align: center;
+        font-size: 18px;
+        margin-bottom: 5px;
+    }
+    .underline {
+        width: 50px;
+        height: 3px;
+        background: linear-gradient(to right, #6c63ff, #a855f7);
+        margin: 0 auto 15px auto;
+        border-radius: 2px;
+    }
+    .section-title {
+        font-weight: bold;
+        margin: 20px 0 10px;
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+        color: #333;
+    }
+    .section-title i {
+        margin-right: 6px;
+        color: #6c63ff;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    .form-row {
+        display: flex;
+        gap: 10px;
+    }
+    label {
+        display: block;
+        font-size: 12px;
+        margin-bottom: 4px;
+        color: #555;
+    }
+    .input-wrapper {
+        display: flex;
+        align-items: center;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 6px 10px;
+        background: #fff;
+    }
+    .input-wrapper i {
+        color: #888;
+        margin-right: 8px;
+        font-size: 14px;
+    }
+    .input-wrapper input {
+        border: none;
+        outline: none;
+        font-size: 13px;
+        flex: 1;
+    }
+    .input-error {
+        border: 1px solid red !important;
+    }
+    button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 10px;
+        background: linear-gradient(to right, #6c63ff, #a855f7);
+        border: none;
+        border-radius: 6px;
+        color: #fff;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 10px;
+        font-size: 14px;
+    }
+    button i {
+        margin-right: 6px;
+    }
+    button[disabled] {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+</style>
+</head>
+<body>
+
+<div id="statusBadge" class="badge"><i class="fa fa-bolt"></i> Lead Generation System</div>
+
+<div class="form-container">
+    <h2>Lead Information Form</h2>
+    <div class="underline"></div>
+    
+    <div class="section-title"><i class="fa fa-user"></i> Personal Information</div>
+    <div class="form-row">
+        <div class="form-group" style="flex:1">
+            <label>Full Name</label>
+            <div class="input-wrapper">
+                <i class="fa fa-user"></i>
+                <input type="text" id="fullName" placeholder="Enter your full name">
+            </div>
+        </div>
+        <div class="form-group" style="flex:1">
+            <label>Mobile Number</label>
+            <div class="input-wrapper">
+                <i class="fa fa-phone"></i>
+                <input type="text" id="mobileNumber" placeholder="Enter your mobile number">
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Email Address</label>
+        <div class="input-wrapper">
+            <i class="fa fa-envelope"></i>
+            <input type="email" id="emailAddress" placeholder="Enter your email address">
+        </div>
+    </div>
+    
+    <div class="section-title"><i class="fa fa-briefcase"></i> Professional Information</div>
+    <div class="form-row">
+        <div class="form-group" style="flex:1">
+            <label>Designation</label>
+            <div class="input-wrapper">
+                <i class="fa fa-id-badge"></i>
+                <input type="text" id="designation" placeholder="Enter your designation">
+            </div>
+        </div>
+        <div class="form-group" style="flex:1">
+            <label>Company Name</label>
+            <div class="input-wrapper">
+                <i class="fa fa-building"></i>
+                <input type="text" id="companyName" placeholder="Enter your company name">
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label>City</label>
+        <div class="input-wrapper">
+            <i class="fa fa-city"></i>
+            <input type="text" id="city" placeholder="Enter your city">
+        </div>
+    </div>
+    
+    <button id="submitBtn"><i class="fa fa-paper-plane"></i> Submit Lead Information</button>
+</div>
+
+<script>
+(function () {
+  const badge = document.getElementById('statusBadge');
+  const submitBtn = document.getElementById('submitBtn');
+
+  function showStatus(text, kind = 'info') {
+    badge.classList.remove('success', 'error');
+    badge.textContent = text;
+    if (kind === 'success') badge.classList.add('success');
+    if (kind === 'error') badge.classList.add('error');
+    setTimeout(() => {
+      badge.classList.remove('success', 'error');
+      badge.innerHTML = '<i class="fa fa-bolt"></i> Lead Generation System';
+    }, 4000);
+  }
+
+  submitBtn.addEventListener('click', async function () {
+    submitBtn.disabled = true;
+
+    const nameEl = document.getElementById('fullName');
+    const mobileEl = document.getElementById('mobileNumber');
+    const emailEl = document.getElementById('emailAddress');
+
+    // remove previous error borders
+    document.querySelectorAll('.input-wrapper').forEach(w => w.classList.remove('input-error'));
+
+    // validation rule: name + (mobile OR email)
+    let valid = true;
+    if (!nameEl.value.trim()) {
+      nameEl.parentElement.classList.add('input-error');
+      valid = false;
+    }
+    if (!mobileEl.value.trim() && !emailEl.value.trim()) {
+      mobileEl.parentElement.classList.add('input-error');
+      emailEl.parentElement.classList.add('input-error');
+      valid = false;
+    }
+
+    if (!valid) {
+      showStatus('✖ Please fill Name and either Mobile or Email', 'error');
+      submitBtn.disabled = false;
+      return;
+    }
+
+    showStatus('Sending...', 'info');
+
+    const fields = [
+      { id: 'fullName', key: 'fullName' },
+      { id: 'mobileNumber', key: 'mobileNumber' },
+      { id: 'emailAddress', key: 'emailAddress' },
+      { id: 'designation', key: 'designation' },
+      { id: 'companyName', key: 'companyName' },
+      { id: 'city', key: 'city' }
+    ];
+
+    const payload = {};
+    fields.forEach(f => {
+      const el = document.getElementById(f.id);
+      payload[f.key] = el ? el.value.trim() : '';
+    });
+
+    try {
+      const res = await fetch('/submit-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data && data.success) {
+        showStatus('✔ Lead saved successfully', 'success');
+      } else {
+        showStatus('✖ ' + (data.message || 'Something went wrong'), 'error');
+      }
+    } catch (err) {
+      console.error(err);
+      showStatus('✖ Network or server error', 'error');
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+})();
+</script>
+
+
+</body>
+</html>
