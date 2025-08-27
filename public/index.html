@@ -26,8 +26,6 @@
         min-width: 220px;
         text-align: center;
     }
-
-    /* status styles (applied dynamically) */
     .badge.success {
       background: #e6ffef;
       color: #047857;
@@ -38,7 +36,6 @@
       color: #b91c1c;
       border-color: #fecaca;
     }
-
     .form-container {
         background: #fff;
         padding: 25px;
@@ -97,11 +94,13 @@
         margin-right: 8px;
         font-size: 14px;
     }
-    .input-wrapper input {
+    .input-wrapper input,
+    .input-wrapper select {
         border: none;
         outline: none;
         font-size: 13px;
         flex: 1;
+        background: transparent;
     }
     .input-error {
         border: 1px solid red !important;
@@ -187,6 +186,24 @@
             <input type="text" id="city" placeholder="Enter your city">
         </div>
     </div>
+
+    <!-- New "Referred By" dropdown -->
+    <div class="form-group">
+        <label>Referred By <span style="color:red">*</span></label>
+        <div class="input-wrapper">
+            <i class="fa fa-user-friends"></i>
+            <select id="referredBy">
+                <option value="">-- Select --</option>
+                <option value="Anil Gupta">Anil Gupta</option>
+                <option value="Chandrachud Mishra">Chandrachud Mishra</option>
+                <option value="Monu Kumar">Monu Kumar</option>
+                <option value="Sandeep">Sandeep</option>
+                <option value="Priya">Priya</option>
+                <option value="Kamlesh">Kamlesh</option>
+                
+            </select>
+        </div>
+    </div>
     
     <button id="submitBtn"><i class="fa fa-paper-plane"></i> Submit Lead Information</button>
 </div>
@@ -213,11 +230,12 @@
     const nameEl = document.getElementById('fullName');
     const mobileEl = document.getElementById('mobileNumber');
     const emailEl = document.getElementById('emailAddress');
+    const referredEl = document.getElementById('referredBy');
 
     // remove previous error borders
     document.querySelectorAll('.input-wrapper').forEach(w => w.classList.remove('input-error'));
 
-    // validation rule: name + (mobile OR email)
+    // validation rule: name + (mobile OR email) + referredBy required
     let valid = true;
     if (!nameEl.value.trim()) {
       nameEl.parentElement.classList.add('input-error');
@@ -228,9 +246,13 @@
       emailEl.parentElement.classList.add('input-error');
       valid = false;
     }
+    if (!referredEl.value.trim()) {
+      referredEl.parentElement.classList.add('input-error');
+      valid = false;
+    }
 
     if (!valid) {
-      showStatus('✖ Please fill Name and either Mobile or Email', 'error');
+      showStatus('✖ Please fill Name, Mobile/Email and Referred By', 'error');
       submitBtn.disabled = false;
       return;
     }
@@ -243,7 +265,8 @@
       { id: 'emailAddress', key: 'emailAddress' },
       { id: 'designation', key: 'designation' },
       { id: 'companyName', key: 'companyName' },
-      { id: 'city', key: 'city' }
+      { id: 'city', key: 'city' },
+      { id: 'referredBy', key: 'referredBy' } // new field added
     ];
 
     const payload = {};
@@ -275,7 +298,6 @@
   });
 })();
 </script>
-
 
 </body>
 </html>

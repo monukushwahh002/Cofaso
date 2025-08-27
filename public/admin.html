@@ -1,293 +1,411 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8" />
-<title>Admin - Leads</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<style>
-  :root{
-    --bg:#f7f8fb;
-    --card:#ffffff;
-    --text:#1f2937;
-    --muted:#6b7280;
-    --border:#e5e7eb;
-    --head:#f3f4f6;
-    --accent:#2563eb;
-    --danger:#e11d48; /* red-600 */
-    --danger-hover:#be123c; /* red-700 */
-    --shadow: 0 2px 10px rgba(0,0,0,.05);
-  }
+  <meta charset="UTF-8" />
+  <title>Admin Panel - Leads</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
+      margin: 0;
+      padding: 20px;
+    }
 
-  body { font-family: Arial, sans-serif; margin: 0; background: var(--bg); color: var(--text); }
-  .wrap { max-width: 1200px; margin: 32px auto; padding: 0 16px; }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
 
-  h1 { margin: 0 0 16px; font-size: 22px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, .08);
+    }
 
-  /* Filters */
-  .search-container{
-    display:flex; gap:10px; flex-wrap: wrap; margin-bottom: 16px;
-  }
-  .search-container input{
-    padding: 10px 12px; width: 240px; max-width: 100%;
-    border: 1px solid var(--border); border-radius: 8px; outline: none;
-    background: #fff; color: var(--text); transition: border-color .2s, box-shadow .2s;
-  }
-  .search-container input:focus{
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(37,99,235,.15);
-  }
+    th,
+    td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+      font-size: 14px;
+    }
 
-  /* Table card */
-  .card{
-    background: var(--card); border:1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow);
-    overflow: hidden;
-  }
-  table{ width: 100%; border-collapse: collapse; }
-  thead th{
-    background: var(--head); border-bottom:1px solid var(--border); padding: 12px; text-align: left; font-weight: 700; font-size: 13px;
-  }
-  tbody td{
-    border-bottom:1px solid var(--border); padding: 12px; vertical-align: top; font-size: 14px;
-  }
-  tbody tr:hover{ background: #fafafa; }
-  .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
-  .nowrap{ white-space: nowrap; }
+    th {
+      background: #2563eb;
+      color: white;
+      position: sticky;
+      top: 0;
+    }
 
-  /* Remark cell (fixed width, no layout change) */
-  .remark-wrap{
-    position: relative; max-width: 200px; /* fixed width */
-  }
-  .remark-cell{
-    width: 200px; max-width: 200px;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    background: #fff; border-radius: 6px;
-    outline: none;
-  }
-  /* Small tooltip that does NOT change layout */
-  .remark-wrap .tip{
-    position: absolute; left: 0; bottom: calc(100% + 8px);
-    background: #111827; color:#fff; border-radius: 6px; padding: 6px 8px; font-size: 12px;
-    box-shadow: 0 6px 18px rgba(0,0,0,.18); max-width: 320px; width: max-content; min-width: 120px;
-    opacity: 0; visibility: hidden; transform: translateY(4px); transition: opacity .15s, transform .15s, visibility .15s; z-index: 10;
-    pointer-events: none;
-  }
-  .remark-wrap:hover .tip{ opacity: 1; visibility: visible; transform: translateY(0); }
-  .tip::after{
-    content: ""; position: absolute; top: 100%; left: 10px; border: 6px solid transparent; border-top-color:#111827;
-  }
+    tr:hover {
+      background: #f1f5f9;
+    }
 
-  /* Icon button (delete) */
-  .icon-btn{
-    background: none; border: 1px solid var(--border); border-radius: 8px; padding: 8px; cursor: pointer;
-    display:inline-flex; align-items:center; justify-content:center; transition: background .15s, border-color .15s, transform .05s;
-  }
-  .icon-btn:hover{ background: #fff; border-color:#d1d5db; }
-  .icon-btn:active{ transform: scale(.98); }
-  .icon-btn.danger svg{ fill: var(--danger); }
-  .icon-btn.danger:hover svg{ fill: var(--danger-hover); }
+    tr.has-remark {
+      background: #fef9c3;
+    }
 
-  /* Pagination */
-  .pagination{
-    display:flex; gap:6px; justify-content:center; align-items:center; flex-wrap: wrap;
-    padding: 12px; background:#fff; border:1px solid var(--border); border-top:0; border-radius: 0 0 12px 12px; box-shadow: var(--shadow);
-  }
-  .page-btn{
-    border:1px solid var(--border); background:#fff; padding:8px 12px; border-radius:8px; cursor:pointer;
-  }
-  .page-btn:hover{ background:#f3f4f6; }
-  .page-btn[disabled]{ opacity:.5; cursor:not-allowed; }
-  .page-btn.active{ background: var(--accent); color:#fff; border-color: var(--accent); }
+    button {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+    }
 
-</style>
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .nowrap {
+      white-space: nowrap;
+    }
+
+    .mono {
+      font-family: monospace;
+    }
+
+    .filters{
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-evenly;
+    }
+    .filters input {
+      width: 13%;
+      padding: 4px;
+      font-size: 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    /* Modal */
+    #remarkModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    #remarkModal .modal-box {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      width: 600px;
+      max-width: 95%;
+      max-height: 90%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #remarkHistory {
+      background: #f9fafb;
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 6px;
+      max-height: 250px;
+      overflow-y: auto;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    #remarkHistory div {
+      border-bottom: 1px solid #eee;
+      padding: 6px 0;
+    }
+
+    #remarkText {
+      flex-grow: 1;
+      min-height: 100px;
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      resize: vertical;
+    }
+
+    #remarkModal .actions {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    #remarkModal .actions button {
+      padding: 8px 14px;
+      font-size: 14px;
+    }
+
+    /* Tooltip styling */
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 280px;
+      max-height: 250px;
+      overflow-y: auto;
+      background-color: #111827;
+      color: #fff;
+      text-align: left;
+      border-radius: 8px;
+      padding: 8px;
+      position: absolute;
+      z-index: 100;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.2s;
+      font-size: 12px;
+      white-space: normal;
+    }
+
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    /* Pagination */
+    .pagination {
+      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pagination button {
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .pagination-info {
+      font-size: 13px;
+      color: #374151;
+    }
+  </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <h1>Admin Panel - Leads</h1>
+  <h1>Admin - Lead Management</h1>
+  <div class="filters">
+    <td></td>
+    <td><input type="text" placeholder="Search Name" onkeyup="applyFilters()" id="filterName"></td>
+    <td><input type="text" placeholder="Search Contact" onkeyup="applyFilters()" id="filterContact"></td>
+    <td><input type="text" placeholder="Search Email" onkeyup="applyFilters()" id="filterEmail"></td>
+    <td><input type="text" placeholder="Designation" onkeyup="applyFilters()" id="filterDesignation"></td>
+    <td><input type="text" placeholder="Company" onkeyup="applyFilters()" id="filterCompany"></td>
+    <td><input type="text" placeholder="City" onkeyup="applyFilters()" id="filterCity"></td>
+    <td><input type="text" placeholder="Referred By" onkeyup="applyFilters()" id="filterReferred"></td>
+    <td></td>
+    <td></td>
+  </div>
+  <table id="leadsTable">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Name</th>
+        <th>Contact</th>
+        <th>Email</th>
+        <th>Designation</th>
+        <th>Company</th>
+        <th>City</th>
+        <th>Referred By</th>
+        <th>Action</th>
+      </tr>
+      <!-- Filters -->
 
-    <!-- Filters (unchanged workflow) -->
-    <div class="search-container">
-      <input type="text" id="searchName" placeholder="Search by Name" />
-      <input type="text" id="searchEmail" placeholder="Search by Email" />
-      <input type="text" id="searchMobile" placeholder="Search by Mobile" />
-    </div>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-    <section class="card">
-      <table id="leadsTable" aria-live="polite">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Name</th>
-            <th>Mobile</th>
-            <th>Email</th>
-            <th>Designation</th>
-            <th>Company</th>
-            <th>City</th>
-            <th>Remark</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <!-- pagination footer -->
-      <div id="pagination" class="pagination"></div>
-    </section>
+  <!-- Pagination Controls -->
+  <div class="pagination">
+    <button onclick="prevPage()">Previous</button>
+    <span class="pagination-info" id="paginationInfo"></span>
+    <button onclick="nextPage()">Next</button>
   </div>
 
-<script>
-const API = ''; // same-origin
-let leadsData = [];   // all leads (sorted newest -> oldest)
-let filtered = [];    // leads after filters
-let currentPage = 1;
-const PER_PAGE = 10;
+  <!-- Modal -->
+  <div id="remarkModal">
+    <div class="modal-box">
+      <h3>Remarks</h3>
+      <div id="remarkHistory"></div>
+      <textarea id="remarkText" placeholder="Add new remark..."></textarea>
+      <div class="actions">
+        <button onclick="closeModal()">Cancel</button>
+        <button onclick="saveRemark()">Save</button>
+      </div>
+    </div>
+  </div>
 
-/* Format: DD-MM-YYYY */
-function formatDMY(dStr){
-  if(!dStr) return '';
-  const d = new Date(dStr);
-  const dd = String(d.getDate()).padStart(2,'0');
-  const mm = String(d.getMonth()+1).padStart(2,'0');
-  const yyyy = d.getFullYear();
-  return `${dd}-${mm}-${yyyy}`;
-}
+  <script>
+    document.getElementById('remarkModal').style.display = 'none';
+    let leads = [];
+    let filteredLeads = [];
+    let currentLeadId = null;
 
-async function fetchLeads() {
-  const res = await fetch('/api/leads');
-  const data = await res.json();
-  if (data.success) {
-    // newest first
-    leadsData = (data.data || []).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
-    filtered = leadsData.slice();
-    renderPage(1);
-  }
-}
+    let currentPage = 1;
+    const rowsPerPage = 10;
 
-function renderPage(page){
-  currentPage = page;
-  const start = (currentPage - 1) * PER_PAGE;
-  const rows = filtered.slice(start, start + PER_PAGE);
-  renderTable(rows);
-  renderPagination();
-}
+    async function fetchLeads() {
+      const res = await fetch('/api/leads');
+      const data = await res.json();
+      if (data.success) {
+        leads = data.data;
+        filteredLeads = leads;
+        renderTable();
+      }
+    }
 
-function renderTable(rows) {
-  const tbody = document.querySelector('#leadsTable tbody');
-  tbody.innerHTML = '';
-  if (!rows.length){
-    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:#6b7280;padding:20px;">No results</td></tr>`;
-    return;
-  }
+    function renderTable() {
+      const tbody = document.querySelector('#leadsTable tbody');
+      tbody.innerHTML = '';
 
-  rows.forEach(lead => {
-    const tr = document.createElement('tr');
-    const fullRemark = (lead.remark || '').replace(/"/g, '&quot;');
-    tr.innerHTML = `
-      <td class="nowrap">${formatDMY(lead.createdAt)}</td>
-      <td>${lead.fullName || ''}</td>
-      <td class="mono">${lead.mobileNumber || ''}</td>
-      <td class="mono">${lead.emailAddress || ''}</td>
-      <td>${lead.designation || ''}</td>
-      <td>${lead.companyName || ''}</td>
-      <td>${lead.city || ''}</td>
-      <td>
-        <div class="remark-wrap">
-          <div class="remark-cell" contenteditable="true"
-               oninput="this.parentElement.querySelector('.tip').textContent = this.innerText"
-               onblur="updateRemark('${lead._id}', this.innerText)">${lead.remark || ''}</div>
-          <div class="tip">${fullRemark || 'No remark'}</div>
-        </div>
-      </td>
-      <td class="nowrap">
-        <button class="icon-btn danger" title="Delete" onclick="deleteLead('${lead._id}')" aria-label="Delete">
-          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M9 3h6a1 1 0 0 1 1 1v1h4v2h-1v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7H4V5h4V4a1 1 0 0 1 1-1zm1 2h4V5h-4zm-1 6h2v7H9zm6 0h-2v7h2zM7 7v12h10V7H7z"/>
-          </svg>
-        </button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
+      const totalPages = Math.ceil(filteredLeads.length / rowsPerPage);
+      if (currentPage > totalPages) currentPage = totalPages || 1;
 
-function renderPagination(){
-  const pager = document.getElementById('pagination');
-  pager.innerHTML = '';
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+      const start = (currentPage - 1) * rowsPerPage;
+      const end = start + rowsPerPage;
+      const rows = filteredLeads.slice(start, end);
 
-  const btnPrev = document.createElement('button');
-  btnPrev.className = 'page-btn';
-  btnPrev.textContent = 'Prev';
-  btnPrev.disabled = currentPage === 1;
-  btnPrev.onclick = () => renderPage(currentPage - 1);
-  pager.appendChild(btnPrev);
+      if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;color:#6b7280;padding:20px;">No results</td></tr>`;
+        document.getElementById('paginationInfo').innerText = "Page 0 of 0";
+        return;
+      }
 
-  // windowed page numbers (max 7 buttons)
-  const windowSize = 7;
-  let start = Math.max(1, currentPage - Math.floor(windowSize/2));
-  let end = Math.min(totalPages, start + windowSize - 1);
-  if (end - start + 1 < windowSize) start = Math.max(1, end - windowSize + 1);
+      rows.forEach(lead => {
+        let tooltipHtml = '';
+        if (lead.remarks && lead.remarks.length) {
+          tooltipHtml = lead.remarks.map(r =>
+            `<div><strong>${new Date(r.date).toLocaleString()}</strong>: ${r.text}</div>`
+          ).join('');
+        } else {
+          tooltipHtml = '<em>No remarks yet</em>';
+        }
 
-  for (let i = start; i <= end; i++){
-    const b = document.createElement('button');
-    b.className = 'page-btn' + (i === currentPage ? ' active' : '');
-    b.textContent = i;
-    b.onclick = () => renderPage(i);
-    pager.appendChild(b);
-  }
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="nowrap">${formatDMY(lead.createdAt)}</td>
+          <td>${lead.fullName || ''}</td>
+          <td class="mono">${lead.mobileNumber || ''}</td>
+          <td>${lead.emailAddress || ''}</td>
+          <td>${lead.designation || ''}</td>
+          <td>${lead.companyName || ''}</td>
+          <td>${lead.city || ''}</td>
+          <td>${lead.referredBy || ''}</td>
+          <td>
+            <div class="tooltip">
+              <button onclick="openModal('${lead._id}')">Remarks</button>
+              <div class="tooltiptext">${tooltipHtml}</div>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
 
-  const btnNext = document.createElement('button');
-  btnNext.className = 'page-btn';
-  btnNext.textContent = 'Next';
-  btnNext.disabled = currentPage === totalPages;
-  btnNext.onclick = () => renderPage(currentPage + 1);
-  pager.appendChild(btnNext);
-}
+      document.getElementById('paginationInfo').innerText = `Page ${currentPage} of ${totalPages}`;
+    }
 
-/* Delete + Remark update (unchanged workflow) */
-async function deleteLead(id) {
-  if (!confirm('Are you sure you want to delete this lead?')) return;
-  const res = await fetch(`/api/leads/${id}`, { method: 'DELETE' });
-  const json = await res.json().catch(() => ({}));
-  if (res.ok && json.success !== false){
-    // remove locally to keep current page if possible
-    leadsData = leadsData.filter(l => l._id !== id);
-    // re-apply filters to the updated dataset
-    applyFilters(false); // don't reset inputs
-    // if current page is beyond last, step back
-    const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
-    if (currentPage > totalPages) currentPage = totalPages;
-    renderPage(currentPage);
-  } else {
-    alert(json.message || 'Delete failed');
-  }
-}
+    function formatDMY(dateStr) {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('en-GB');
+    }
 
-async function updateRemark(id, remark) {
-  await fetch(`/api/leads/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ remark })
-  });
-}
+    function openModal(leadId) {
+      currentLeadId = leadId;
+      const lead = leads.find(l => l._id === leadId);
+      const historyBox = document.getElementById('remarkHistory');
+      historyBox.innerHTML = '';
+      if (lead.remarks && lead.remarks.length) {
+        lead.remarks.forEach(r => {
+          historyBox.innerHTML += `<div><strong>${new Date(r.date).toLocaleString()}:</strong> ${r.text}</div>`;
+        });
+      } else {
+        historyBox.innerHTML = `<em>No previous remarks</em>`;
+      }
+      document.getElementById('remarkText').value = '';
+      document.getElementById('remarkModal').style.display = 'flex';
+    }
 
-/* Filters -> paginate results */
-function applyFilters(resetInputs = true){
-  const nameFilter = document.getElementById('searchName').value.toLowerCase();
-  const emailFilter = document.getElementById('searchEmail').value.toLowerCase();
-  const mobileFilter = document.getElementById('searchMobile').value.toLowerCase();
+    function closeModal() {
+      document.getElementById('remarkModal').style.display = 'none';
+      currentLeadId = null;
+    }
 
-  filtered = leadsData.filter(lead =>
-    (lead.fullName || '').toLowerCase().includes(nameFilter) &&
-    (lead.emailAddress || '').toLowerCase().includes(emailFilter) &&
-    (lead.mobileNumber || '').toLowerCase().includes(mobileFilter)
-  );
-  renderPage(1);
-}
+    async function saveRemark() {
+      const text = document.getElementById('remarkText').value.trim();
+      if (!text) { alert('Remark is required'); return; }
 
-document.querySelectorAll('#searchName, #searchEmail, #searchMobile').forEach(input => {
-  input.addEventListener('input', () => applyFilters());
-});
+      const res = await fetch(`/api/leads/${currentLeadId}/remarks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      });
+      const data = await res.json();
 
-fetchLeads();
-</script>
+      if (data.success) {
+        closeModal();
+        fetchLeads();
+      } else {
+        alert(data.message || 'Failed to save remark');
+      }
+    }
+
+    function applyFilters() {
+      const name = document.getElementById('filterName').value.toLowerCase();
+      const contact = document.getElementById('filterContact').value.toLowerCase();
+      const email = document.getElementById('filterEmail').value.toLowerCase();
+      const designation = document.getElementById('filterDesignation').value.toLowerCase();
+      const company = document.getElementById('filterCompany').value.toLowerCase();
+      const city = document.getElementById('filterCity').value.toLowerCase();
+      const referred = document.getElementById('filterReferred').value.toLowerCase();
+
+      filteredLeads = leads.filter(l =>
+        (!name || (l.fullName || '').toLowerCase().includes(name)) &&
+        (!contact || (l.mobileNumber || '').toLowerCase().includes(contact)) &&
+        (!email || (l.emailAddress || '').toLowerCase().includes(email)) &&
+        (!designation || (l.designation || '').toLowerCase().includes(designation)) &&
+        (!company || (l.companyName || '').toLowerCase().includes(company)) &&
+        (!city || (l.city || '').toLowerCase().includes(city)) &&
+        (!referred || (l.referredBy || '').toLowerCase().includes(referred))
+      );
+
+      currentPage = 1;
+      renderTable();
+    }
+
+    function nextPage() {
+      const totalPages = Math.ceil(filteredLeads.length / rowsPerPage);
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderTable();
+      }
+    }
+
+    function prevPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        renderTable();
+      }
+    }
+
+    fetchLeads();
+  </script>
 </body>
+
 </html>

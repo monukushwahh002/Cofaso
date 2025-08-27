@@ -28,24 +28,60 @@ const leadSchema = new mongoose.Schema({
   designation: String,
   companyName: String,
   city: String,
-  remark: { type: String, default: '' },
+  referredBy: String,   // 👈 added here
+  remarks: [
+    {
+      text: String,
+      date: { type: Date, default: Date.now }
+    }
+  ],
   createdAt: { type: Date, default: Date.now }
 });
+
 const Lead = mongoose.model('Lead', leadSchema);
 
+/* ------------------------- Duplicate check ------------------------- */
+async function isDuplicateLead(raw) {
+  const { mobileNumber, emailAddress } = raw;
+
+  if (mobileNumber && emailAddress) {
+    return await Lead.findOne({ mobileNumber });
+  } else if (mobileNumber) {
+    return await Lead.findOne({ mobileNumber });
+  } else if (emailAddress) {
+    return await Lead.findOne({ emailAddress });
+  }
+  return null;
+}
+
+// 📌 Public lead submission
 // 📌 Public lead submission
 app.post('/submit-lead', async (req, res) => {
   try {
     const raw = req.body || {};
     const leadData = {
       fullName: raw.fullName ?? raw['Full Name'] ?? 'NA',
-      mobileNumber: raw.mobileNumber ?? raw['Mobile Number'] ?? 'NA',
-      emailAddress: raw.emailAddress ?? raw['Email Address'] ?? 'NA',
+      mobileNumber: raw.mobileNumber ?? raw['Mobile Number'] ?? '',
+      emailAddress: raw.emailAddress ?? raw['Email Address'] ?? '',
       designation: raw.designation ?? raw['Designation'] ?? 'NA',
       companyName: raw.companyName ?? raw['Company Name'] ?? 'NA',
       city: raw.city ?? raw['City'] ?? 'NA',
-      remark: raw.remark ?? ''
+      referredBy: raw.referredBy ?? raw['Referred By'] ?? 'NA',   // 👈 added here
+      remarks: []
     };
+
+    // ✅ rest logic unchanged
+    const exists = await isDuplicateLead(leadData);
+    if (exists) {
+      if (leadData.mobileNumber && leadData.emailAddress) {
+        return res.status(400).json({ success: false, message: 'Duplicate found: Mobile number already exists.' });
+      } else if (leadData.mobileNumber) {
+        return res.status(400).json({ success: false, message: 'Duplicate found: Mobile number already exists.' });
+      } else if (leadData.emailAddress) {
+        return res.status(400).json({ success: false, message: 'Duplicate found: Email already exists.' });
+      }
+    }
+
     const lead = new Lead(leadData);
     await lead.save();
     res.json({ success: true, message: 'Lead saved successfully!' });
@@ -55,17 +91,17 @@ app.post('/submit-lead', async (req, res) => {
   }
 });
 
+
 // 📌 Admin page
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
-// 📌 Get all leads (with search filters)
+// 📌 Get all leads
 app.get('/api/leads', async (req, res) => {
   try {
     const { name, email, phone } = req.query;
     let query = {};
-
     if (name) query.fullName = { $regex: name, $options: 'i' };
     if (email) query.emailAddress = { $regex: email, $options: 'i' };
     if (phone) query.mobileNumber = { $regex: phone, $options: 'i' };
@@ -78,24 +114,22 @@ app.get('/api/leads', async (req, res) => {
   }
 });
 
-// 📌 Create lead (Admin manual add)
-app.post('/api/leads', async (req, res) => {
+// 📌 Append new remark
+app.post('/api/leads/:id/remarks', async (req, res) => {
   try {
-    const lead = new Lead(req.body);
-    await lead.save();
+    const { text } = req.body;
+    if (!text) return res.status(400).json({ success: false, message: "Remark text required" });
+
+    const lead = await Lead.findByIdAndUpdate(
+      req.params.id,
+      { $push: { remarks: { text, date: new Date() } } },
+      { new: true }
+    );
+
     res.json({ success: true, data: lead });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
-
-// 📌 Update full lead
-app.put('/api/leads/:id', async (req, res) => {
-  try {
-    const updatedLead = await Lead.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json({ success: true, data: updatedLead });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    console.error('Error saving remark:', err);
+    res.status(500).json({ success: false, message: 'Error saving remark' });
   }
 });
 
@@ -104,16 +138,6 @@ app.delete('/api/leads/:id', async (req, res) => {
   try {
     await Lead.findByIdAndDelete(req.params.id);
     res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
-
-// 📌 Update only remark
-app.patch('/api/leads/:id/remark', async (req, res) => {
-  try {
-    const updatedLead = await Lead.findByIdAndUpdate(req.params.id, { remark: req.body.remark }, { new: true });
-    res.json({ success: true, data: updatedLead });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
